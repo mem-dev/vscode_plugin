@@ -18,8 +18,16 @@ const handleSnippetCreation = async (editor, ctx) => {
       ? "plain"
       : editor.document.languageId;
   const filteredLanguages = languages.filter(l => l.value === syntax);
-  const topic = filteredLanguages.length ? filteredLanguages[0].name : syntax;
+  let topic = filteredLanguages.length ? filteredLanguages[0].name : syntax;
   let title = "";
+  if (syntax === "plain") {
+    do {
+      topic = await vscode.window.showInputBox({
+        prompt: "Topic",
+        placeHolder: "This snippet is about..."
+      });
+    } while (typeof topic === "string" && !topic.trim());
+  }
   do {
     title = await vscode.window.showInputBox({
       prompt: "Snippet Title (Required)",
