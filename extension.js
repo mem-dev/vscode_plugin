@@ -4,9 +4,59 @@ const vscode = require("vscode");
 const loginHandler = require("./utils/loginHandler");
 const snippets = require("./utils/snippets");
 const config = require("./utils/config");
+const languages = require("./utils/languages");
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
+
+const handleSnippetCreation = async (editor, ctx) => {
+  const selection = editor.selection;
+  const content = editor.document.getText(selection);
+
+  const syntax =
+    editor.document.languageId === "plaintext"
+      ? "plain"
+      : editor.document.languageId;
+  const filteredLanguages = languages.filter(l => l.value === syntax);
+  const topic = filteredLanguages.length ? filteredLanguages[0].name : syntax;
+  let title = "";
+  do {
+    title = await vscode.window.showInputBox({
+      prompt: "Snippet Title (Required)",
+      placeHolder: "I just learned how to..."
+    });
+  } while (typeof title === "string" && !title.trim());
+
+  if (title) {
+    const source = await vscode.window.showInputBox({
+      prompt: "Source (Optional)",
+      placeHolder: "From"
+    });
+
+    try {
+      const accessToken = loginHandler.accessToken(ctx);
+      await snippets.create(
+        { title, syntax, content, source, topic },
+        accessToken
+      );
+      vscode.window
+        .showInformationMessage(
+          "Success! Your new snippet has been created!",
+          "Convert it to a flashcard"
+        )
+        .then(r => {
+          if (r === "Convert it to a flashcard")
+            vscode.env.openExternal(
+              vscode.Uri.parse(`${config.baseUrl}snippets/process`)
+            );
+        });
+    } catch (e) {
+      vscode.window.showErrorMessage(
+        "Oops. Looks like something went wrong. Please try again."
+      );
+    }
+  }
+};
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -14,7 +64,7 @@ const config = require("./utils/config");
 function activate(context) {
   let disposable = vscode.commands.registerCommand(
     "extension.createSnippet",
-    async a => {
+    async () => {
       const editor = vscode.window.activeTextEditor;
 
       const selection = editor.selection;
@@ -26,9 +76,7 @@ function activate(context) {
         );
         return;
       }
-
-      const isLoggedIn = await loginHandler.accessToken();
-
+      let isLoggedIn = loginHandler.accessToken(context);
       if (!isLoggedIn) {
         const authToken = await vscode.window.showInputBox({
           prompt: "Please login to continue",
@@ -44,7 +92,6 @@ function activate(context) {
             });
           return;
         }
-
         vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
@@ -52,18 +99,22 @@ function activate(context) {
           },
           async (progress, token) => {
             try {
-              await loginHandler.login(authToken);
+              await loginHandler.login(authToken, context);
               progress.report({
                 increment: 100,
                 message: "Logged in successfully!"
               });
+              handleSnippetCreation(editor, context);
             } catch (e) {
               progress.report({
                 increment: 100,
                 message: "Logging in failed. Please try again."
               });
               vscode.window
-                .showInformationMessage("Don't have a token?", "Get your token")
+                .showInformationMessage(
+                  "Logging in failed. Don't have a token?",
+                  "Get your token"
+                )
                 .then(r => {
                   if (r === "Get your token")
                     vscode.env.openExternal(vscode.Uri.parse(config.baseUrl));
@@ -71,43 +122,9 @@ function activate(context) {
             }
           }
         );
+        return;
       }
-      const syntax =
-        editor.document.languageId === "plaintext"
-          ? "plain"
-          : editor.document.languageId;
-      let title = "";
-      do {
-        title = await vscode.window.showInputBox({
-          prompt: "Snippet Title (Required)",
-          placeHolder: "I just learned how to..."
-        });
-      } while (!title.trim());
-      const source = await vscode.window.showInputBox({
-        prompt: "Source (Optional)",
-        placeHolder: "From"
-      });
-
-      try {
-        const accessToken = await loginHandler.accessToken();
-        const res = await snippets.create(
-          { title, syntax, content, source, topic: syntax },
-          accessToken
-        );
-        vscode.window
-          .showInformationMessage(
-            "Success! Your new snippet has been created!",
-            "Convert it to a flashcard"
-          )
-          .then(r => {
-            if (r === "Convert it to a flashcard")
-              vscode.env.openExternal(
-                vscode.Uri.parse(`${config.baseUrl}snippets/process`)
-              );
-          });
-      } catch (e) {
-        console.log(e);
-      }
+      handleSnippetCreation(editor, context);
     }
   );
 
