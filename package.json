@@ -10,7 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.createSnippet"
+		"onCommand:extension.createSnippet",
+		"onCommand:extension.logout"
 	],
 	"main": "./extension.js",
 	"contributes": {
@@ -18,6 +19,10 @@
 			{
 				"command": "extension.createSnippet",
 				"title": "mem.dev: Create a snippet"
+			},
+			{
+				"command": "extension.logout",
+				"title": "mem.dev: Logout"
 			}
 		],
 		"menus": {

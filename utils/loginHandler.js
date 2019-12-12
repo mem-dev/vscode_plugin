@@ -10,5 +10,8 @@ module.exports = {
   accessToken(ctx) {
     const creds = ctx.globalState.get(config.serviceName, null);
     return creds;
+  },
+  logout(ctx){
+    ctx.globalState.update(config.serviceName, null);
   }
 };
