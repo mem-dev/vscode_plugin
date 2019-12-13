@@ -79,7 +79,7 @@ function activate(context) {
 
       if (!authToken) {
         vscode.window.showInformationMessage("Don't have a token?", 'Get your token').then(r => {
-          if (r === 'Get your token') vscode.env.openExternal(vscode.Uri.parse(config.baseUrl))
+          if (r === 'Get your token') vscode.env.openExternal(vscode.Uri.parse(`${config.baseUrl}/?s=extension`))
         })
         return
       }
@@ -105,7 +105,7 @@ function activate(context) {
               .showInformationMessage("Logging in failed. Don't have a token?", 'Get your token')
               .then(r => {
                 if (r === 'Get your token')
-                  vscode.env.openExternal(vscode.Uri.parse(config.baseUrl))
+                  vscode.env.openExternal(vscode.Uri.parse(`${config.baseUrl}/?s=extension`))
               })
           }
         },
