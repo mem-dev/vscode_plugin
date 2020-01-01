@@ -1,5 +1,5 @@
 module.exports = {
-  baseUrl: 'http://localhost:3000/',
-  baseApiUrl: "http://localhost:3000/api/v2/",
-  serviceName: 'mem.dev:code'
+  baseUrl: 'https://mem.dev/',
+  baseApiUrl: "https://mem.dev/api/v2/",
+  serviceName: 'mem.dev:vscode'
 }
