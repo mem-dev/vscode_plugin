@@ -1,6 +1,7 @@
 {
-	"name": "mem.dev",
+	"name": "memdev",
 	"displayName": "mem.dev",
+	"publisher": "memdev",
 	"description": "",
 	"version": "0.0.1",
 	"engines": {
@@ -51,5 +52,9 @@
 	},
 	"dependencies": {
 		"axios": "^0.19.0"
-	}
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mem-dev/vscode_plugin"
+	  }
 }
