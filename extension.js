@@ -117,7 +117,7 @@ function activate(context) {
 
   let logoutCommand = vscode.commands.registerCommand('extension.logout', async () => {
     loginHandler.logout(context)
-    vscode.window.showInformationMessage("You're mem.dev account is now logged out.")
+    vscode.window.showInformationMessage("You've been logged out of mem.dev")
   })
 
   context.subscriptions.push(disposable)
