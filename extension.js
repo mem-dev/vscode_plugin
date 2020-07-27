@@ -33,14 +33,9 @@ const handleSnippetCreation = async (editor, ctx) => {
   } while (typeof title === 'string' && !title.trim())
 
   if (title) {
-    const source = await vscode.window.showInputBox({
-      prompt: 'Source (Optional)',
-      placeHolder: 'From',
-    })
-
     try {
       const accessToken = loginHandler.accessToken(ctx)
-      await snippets.create({ title, syntax, content, source, topic }, accessToken)
+      await snippets.create({ title, syntax, content, topic }, accessToken)
       vscode.window
         .showInformationMessage(
           'Success! Your new snippet has been created!',
